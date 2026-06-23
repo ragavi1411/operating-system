@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void cscan(int requests[], int n, int head, int disk_size) {
+    int seek_count = 0;
+    int cur_track = head;
+    int left[100], right[100];
+    int l = 0, r = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (requests[i] < head)
+            left[l++] = requests[i];
+        else
+            right[r++] = requests[i];
+    }
+
+    // Sort both sub-arrays (ascending)
+    for (int i = 0; i < l - 1; i++)
+        for (int j = i + 1; j < l; j++)
+            if (left[i] > left[j]) { int t = left[i]; left[i] = left[j]; left[j] = t; }
+
+    for (int i = 0; i < r - 1; i++)
+        for (int j = i + 1; j < r; j++)
+            if (right[i] > right[j]) { int t = right[i]; right[i] = right[j]; right[j] = t; }
+
+    printf("Seek Sequence: %d", cur_track);
+
+    // Move towards higher tracks, servicing right side
+    for (int i = 0; i < r; i++) {
+        seek_count += abs(right[i] - cur_track);
+        cur_track = right[i];
+        printf(" -> %d", cur_track);
+    }
+
+    // Go to the end of disk
+    seek_count += abs((disk_size - 1) - cur_track);
+    cur_track = disk_size - 1;
+    printf(" -> %d", cur_track);
+
+    // Jump to the beginning of disk (this jump is NOT counted as seek time in some conventions,
+    // but commonly added as the full traversal — included here for completeness)
+    seek_count += (disk_size - 1);
+    cur_track = 0;
+    printf(" -> %d", cur_track);
+
+    // Service left side in ascending order from 0
+    for (int i = 0; i < l; i++) {
+        seek_count += abs(left[i] - cur_track);
+        cur_track = left[i];
+        printf(" -> %d", cur_track);
+    }
+
+    printf("\nTotal Seek Count (C-SCAN) = %d\n", seek_count);
+}
+
+int main() {
+    int n, head, disk_size;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    int requests[n];
+    printf("Enter the requests: ");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &requests[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size (max track number + 1): ");
+    scanf("%d", &disk_size);
+
+    cscan(requests, n, head, disk_size);
+
+    return 0;
+}
