@@ -38,7 +38,7 @@ void cscan(int requests[], int n, int head, int disk_size) {
     printf(" -> %d", cur_track);
 
     // Jump to the beginning of disk (this jump is NOT counted as seek time in some conventions,
-    // but commonly added as the full traversal — included here for completeness)
+    // but commonly added as the full traversal â€” included here for completeness)
     seek_count += (disk_size - 1);
     cur_track = 0;
     printf(" -> %d", cur_track);
